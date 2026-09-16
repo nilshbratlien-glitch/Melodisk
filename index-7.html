@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0d10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Xylo Plan</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0d10;
+      --bg2: #14161c;
+      --ink: #f4f1ea;
+      --muted: #8b909c;
+      --gold: #e8b86d;
+      --gold-2: #f3d7a4;
+      --teal: #7ee0d6;
+      --card: rgba(255,255,255,0.04);
+      --line: rgba(255,255,255,0.08);
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    button, input, label { touch-action: manipulation; }
+    body {
+      font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
+      background:
+        radial-gradient(900px 420px at 0% -10%, rgba(232,184,109,.16), transparent 50%),
+        radial-gradient(700px 380px at 100% 0%, rgba(126,224,214,.08), transparent 46%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 240px; }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    h1 {
+      font-family: Syne, Outfit, sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 6vw, 2.8rem);
+      letter-spacing: -0.04em;
+      margin: 0;
+      line-height: .95;
+    }
+    .sub { color: var(--muted); margin: 8px 0 0; font-size: .95rem; max-width: 28rem; }
+    .target-wrap { flex: 1; min-width: 180px; max-width: 280px; }
+    .target-wrap input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 16px;
+      color: var(--ink);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      outline: none;
+    }
+    .target-wrap input:focus { border-color: rgba(232,184,109,.55); }
+    .panel, .srf {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .time-row { display: flex; align-items: center; gap: 16px; }
+    input[type="range"] {
+      flex: 1;
+      appearance: none;
+      height: 28px;
+      border-radius: 99px;
+      background: transparent;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--gold), #7ee0d6);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 28px; height: 28px;
+      margin-top: -11px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,.35);
+      cursor: pointer;
+    }
+    .time-read {
+      font-family: Syne, sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gold-2);
+      min-width: 5.2rem;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .time-read small { font-size: .72rem; color: var(--muted); font-family: Outfit, sans-serif; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+    .days {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px;
+      overflow-x: auto;
+    }
+    .days button {
+      font-family: inherit;
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 12px;
+      min-height: 44px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .85rem;
+      white-space: nowrap;
+    }
+    .days button.on { background: var(--ink); color: #111; }
+    .mode {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+    .mode button {
+      flex: 1;
+      font-family: inherit;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      min-height: 44px;
+      border-radius: 999px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .mode button.on { background: var(--ink); color: #111; }
+    #customBox { display: none; }
+    body.custom #autoControls { display: none; }
+    body.custom #customBox { display: block; }
+    body.custom #dayBox,
+    body.custom #shapeLine { display: none; }
+    .custom-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 44px 52px 44px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 0;
+      border-top: 1px solid var(--line);
+      font-size: .95rem;
+    }
+    .custom-row:first-child { border-top: 0; }
+    .custom-row input[type="checkbox"] { margin: 0; }
+    .custom-row button {
+      font-family: inherit;
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      font-size: 1rem;
+    }
+    .custom-row.off { opacity: .4; }
+    .custom-min { text-align: center; font-family: Syne, sans-serif; font-weight: 800; }
+    .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
+    .presets button {
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 650;
+      min-height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      padding: 0 12px;
+      cursor: pointer;
+    }
+    .presets button.stock { border-color: rgba(232,184,109,.35); }
+    .presets .del {
+      min-width: 36px;
+      padding: 0 8px;
+      color: var(--muted);
+    }
+    .save-row { display: flex; gap: 8px; margin-top: 10px; }
+    .save-row input {
+      flex: 1;
+      font-family: inherit;
+      font-size: 16px;
+      color: var(--ink);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      margin: 4px 0 14px;
+      font-size: .86rem;
+    }
+    .meta b {
+      color: var(--ink);
+      font-weight: 600;
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+    ol.plan { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+    ol.plan li {
+      display: grid;
+      grid-template-columns: 64px 1fr auto 22px;
+      gap: 12px;
+      padding: 14px 14px 14px 16px;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    ol.plan li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--gold);
+    }
+    ol.plan li[data-kind="body"]::before { background: #8b909c; }
+    ol.plan li[data-kind="twomallet"]::before { background: #7ee0d6; }
+    ol.plan li[data-kind="fourmallet"]::before { background: #8aa4ff; }
+    ol.plan li[data-kind="scales"]::before { background: #9ad27a; }
+    ol.plan li[data-kind="srf"]::before { background: var(--gold); }
+    ol.plan li[data-kind="rep"]::before { background: #e89b6d; }
+    ol.plan li[data-kind="close"]::before { background: #c4b8e0; }
+    ol.plan li.live {
+      border-color: rgba(232,184,109,.55);
+      background: rgba(232,184,109,.08);
+      box-shadow: 0 0 0 1px rgba(232,184,109,.2), 0 12px 32px rgba(0,0,0,.28);
+      transform: scale(1.01);
+    }
+    ol.plan li.skipped { opacity: 0.42; }
+    ol.plan li.skipped .block h3 { text-decoration: line-through; }
+    .tools { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+    .tools button {
+      font-family: inherit;
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-width: 44px;
+      height: 44px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .tools button:hover { border-color: rgba(232,184,109,.5); }
+    .tools button:disabled { opacity: 0.3; cursor: default; }
+    .bank {
+      display: none;
+      background: linear-gradient(180deg, rgba(126,224,214,.12), rgba(126,224,214,.04));
+      border: 1px solid rgba(126,224,214,.28);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin: 0 0 12px;
+    }
+    .bank.on { display: block; }
+    .bank.flash { animation: bankPulse .9s ease; }
+    @keyframes bankPulse {
+      0% { box-shadow: 0 0 0 0 rgba(126,224,214,.45); }
+      100% { box-shadow: 0 0 0 18px rgba(126,224,214,0); }
+    }
+    .bank b { color: var(--teal); }
+    .give { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .give button {
+      font-family: inherit;
+      background: var(--ink);
+      color: #111;
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 0.8rem;
+    }
+    .mins { color: var(--gold-2); font-family: Syne, sans-serif; font-size: 1.35rem; font-weight: 800; letter-spacing: -.04em; }
+    .mins small { display: block; color: var(--muted); font-size: .65rem; font-family: Outfit, sans-serif; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+    .block h3 { margin: 0 0 3px; font-size: 1rem; font-weight: 650; letter-spacing: -.01em; }
+    .block p { margin: 0; color: var(--muted); font-size: .86rem; }
+    input[type="checkbox"] {
+      appearance: none;
+      width: 28px; height: 28px;
+      border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: 6px;
+      margin-top: 2px;
+      cursor: pointer;
+      background: transparent;
+    }
+    input[type="checkbox"]:checked {
+      background: var(--teal);
+      border-color: var(--teal);
+      box-shadow: inset 0 0 0 3px #0c0d10;
+    }
+    .srf h2 {
+      font-family: Syne, sans-serif;
+      color: var(--ink);
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      letter-spacing: -.03em;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: .8rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .chip b { color: var(--teal); font-weight: 650; margin-right: 4px; }
+    .rules { color: var(--muted); font-size: .88rem; padding-left: 18px; }
+    .dock {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(12,13,16,.96);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+      z-index: 25;
+    }
+    .dock-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .dock .actions { margin: 0; }
+    .dock .actions .act:first-child { flex: 1 1 160px; }
+    button.act {
+      font-family: inherit;
+      background: var(--ink);
+      color: #111;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    #live {
+      margin: 0;
+      color: var(--teal);
+      font-family: Syne, sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: -.03em;
+    }
+    #err {
+      display: none;
+      background: #3a1c1c;
+      color: #f3d2d2;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .hint { font-size: .8rem; color: var(--muted); margin-top: 18px; }
+    .sheet-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 30;
+    }
+    .sheet-bg.on { display: block; }
+    .sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      max-height: 86vh;
+      overflow: auto;
+      background: #14161c;
+      border-radius: 22px 22px 0 0;
+      border: 1px solid var(--line);
+      padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
+      z-index: 31;
+      transform: translateY(110%);
+      transition: transform .22s ease;
+    }
+    .sheet.on { transform: translateY(0); }
+    .sheet h2 {
+      font-family: Syne, sans-serif;
+      margin: 0 0 12px;
+      letter-spacing: -.03em;
+    }
+    .sheet textarea {
+      width: 100%;
+      min-height: 72px;
+      font-family: inherit;
+      font-size: 16px;
+      color: var(--ink);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin: 8px 0 12px;
+      resize: vertical;
+    }
+    .log-item {
+      border-top: 1px solid var(--line);
+      padding: 12px 0;
+    }
+    .log-item .when { color: var(--gold-2); font-weight: 650; font-size: .9rem; }
+    .log-item p { margin: 4px 0 0; color: var(--muted); font-size: .88rem; }
+    .sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .metro {
+      display: block;
+      position: static;
+      padding: 0;
+      pointer-events: auto;
+    }
+    .metro-inner {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 8px 10px;
+    }
+    .metro-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .metro-bpm {
+      font-family: Syne, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      min-width: 3rem;
+      letter-spacing: -.04em;
+    }
+    .metro-row button, .metro-row select {
+      font-family: inherit;
+      font-size: 14px;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color: var(--ink);
+      padding: 0 10px;
+    }
+    .metro-row button.on { background: var(--ink); color: #111; }
+    #metroPlay.on { background: var(--teal); color: #111; border-color: var(--teal); }
+    body.playing .sub,
+    body.playing .hint,
+    body.playing .srf,
+    body.playing .panel,
+    body.playing .meta,
+    body.playing .top,
+    body.playing .bank,
+    body.playing ol.plan,
+    body.playing #live { display: none; }
+    body.hide-setup .panel,
+    body.hide-setup .srf,
+    body.hide-setup .hint { display: none; }
+    #setupBtn { display: none; }
+    body.hide-setup:not(.playing) #setupBtn,
+    body.playing #setupBtn { display: flex; }
+    body.playing h1 { font-size: 1.35rem; }
+    body.playing .metro-extra { display: none; }
+    #playHud { display: none; text-align: center; padding: 28px 8px 20px; }
+    body.playing #playHud { display: block; }
+    .play-name {
+      font-family: Syne, sans-serif;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      margin: 0 0 8px;
+    }
+    .play-clock {
+      font-family: Syne, sans-serif;
+      font-size: clamp(4.6rem, 22vw, 7.2rem);
+      font-weight: 800;
+      letter-spacing: -.06em;
+      line-height: .9;
+      color: var(--gold-2);
+      margin: 0 0 14px;
+      display: block;
+      width: 100%;
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+    }
+    .play-clock.paused { color: var(--muted); }
+    .play-cue {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 28rem;
+      margin: 0 auto 22px;
+      line-height: 1.4;
+    }
+    .play-ticks {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tick {
+      font-size: .72rem;
+      font-weight: 650;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .tick.on {
+      color: #111;
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .tick.done { opacity: .35; text-decoration: line-through; }
+    .setup-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .setup-tools button { flex: 1; min-height: 44px; }
+    .dock .actions { display: flex; gap: 8px; }
+    .dock .actions .act { flex: 1; }
+    @media (max-width: 640px) {
+      .top { flex-direction: column; align-items: stretch; }
+      .target-wrap { max-width: none; }
+      ol.plan li { grid-template-columns: 52px 1fr 28px; }
+      .tools { grid-column: 1 / -1; justify-content: flex-start; }
+      button.act { min-height: 52px; font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Xylo Plan</h1>
+        <p class="sub">Xylophone + Sight Reading Factory. Set the time, then skip or steal minutes.</p>
+      </div>
+      <div class="target-wrap">
+        <label for="target">Today’s target</label>
+        <input id="target" type="text" maxlength="80" placeholder="e.g. don’t look down on 4ths" />
+      </div>
+    </div>
+    <div id="err"></div>
+
+    <div class="panel">
+      <div class="mode" id="modeSwitch">
+        <button type="button" id="modeAuto" class="on">Auto plan</button>
+        <button type="button" id="modeCustom">Custom session</button>
+      </div>
+      <div id="autoControls">
+      <label for="mins">Time available</label>
+      <div class="time-row">
+        <input id="mins" type="range" min="15" max="90" step="5" value="70" />
+        <div class="time-read"><span id="minsVal">70</span> <small>min</small></div>
+      </div>
+      </div>
+      <label style="margin-top:12px">Presets</label>
+      <div class="presets" id="presetList"></div>
+      <div id="customBox">
+        <label>Choose blocks and minutes</label>
+        <div id="customList"></div>
+        <div class="meta" style="margin:10px 0 0">Custom total <b id="customTotal">0</b> min</div>
+        <div class="save-row">
+          <input id="presetName" type="text" maxlength="32" placeholder="Name this session" />
+          <button type="button" class="act ghost" id="savePreset">Save preset</button>
+        </div>
+        <button type="button" class="act" id="applyCustom" style="margin-top:12px">Use this session</button>
+      </div>
+      <div id="dayBox">
+      <label style="margin-top:14px">Day</label>
+      <div class="days" id="days">
+        <button type="button" data-day="Mon" class="on">Mon</button>
+        <button type="button" data-day="Tue">Tue</button>
+        <button type="button" data-day="Wed">Wed</button>
+        <button type="button" data-day="Thu">Thu</button>
+        <button type="button" data-day="Fri">Fri</button>
+        <button type="button" data-day="Sat">Sat</button>
+        <button type="button" data-day="Sun">Sun</button>
+      </div>
+      </div>
+      <div class="setup-tools">
+        <button type="button" class="act ghost" id="openLog">Log</button>
+        <button type="button" class="act ghost" id="resetBtn">Reset checks</button>
+        <button type="button" class="act ghost" id="resetPlanBtn">Reset auto-plan</button>
+      </div>
+    </div>
+
+    <div class="meta"><span id="shapeLine">Shape: <b id="shapeName">Standard · New key. Quiet targeting.</b> · </span>Playing <b id="sumMins">70</b> min · Bank <b id="bankVal">0</b></div>
+    <div class="bank" id="bankBox">
+      <div><b id="bankAmt">0 min</b> freed by skip/−. Give them to a block:</div>
+      <div class="give" id="giveBtns"></div>
+    </div>
+
+    <div id="playHud">
+      <div class="play-name" id="playName"></div>
+      <button type="button" class="play-clock" id="playClock" aria-label="Pause or resume">0:00</button>
+      <p class="play-cue" id="playCue"></p>
+      <div class="play-ticks" id="playTicks"></div>
+    </div>
+
+    <ol class="plan" id="plan">
+      <li><div class="mins">5<small>min</small></div><div class="block"><h3>Body reset</h3><p>Shoulder rolls, wrist circles, 20 slow air strokes. Loose grip.</p></div><input type="checkbox" /></li>
+      <li><div class="mins">11<small>min</small></div><div class="block"><h3>2-mallet engine</h3><p>Singles, doubles, short open roll. Center of the bar, even rebound.</p></div><input type="checkbox" /></li>
+      <li><div class="mins">11<small>min</small></div><div class="block"><h3>4-mallet mini-circuit</h3><p>Independents, verticals at 3rds and 5ths, one interval-change drill.</p></div><input type="checkbox" /></li>
+      <li><div class="mins">10<small>min</small></div><div class="block"><h3>Scales + patterns</h3><p>One major + relative minor. Pattern 1-2-3-1 or thirds, then next key.</p></div><input type="checkbox" /></li>
+      <li><div class="mins">12<small>min</small></div><div class="block"><h3>Sight Reading Factory</h3><p>New page. Scan 10 seconds. One pass. Do not stop.</p></div><input type="checkbox" /></li>
+      <li><div class="mins">16<small>min</small></div><div class="block"><h3>Repertoire / etude</h3><p>Green or Goldenberg. Block → slow → two clean runs.</p></div><input type="checkbox" /></li>
+      <li><div class="mins">5<small>min</small></div><div class="block"><h3>Close</h3><p>Record 60 seconds. Write tomorrow’s single target.</p></div><input type="checkbox" /></li>
+    </ol>
+
+    <div class="srf" id="srfCard">
+      <h2>Today’s SRF setup — Mon</h2>
+      <div class="chips">
+        <div class="chip"><b>Instrument</b> Mallets / Xylophone</div>
+        <div class="chip"><b>Mode</b> Free Play</div>
+        <div class="chip"><b>Length</b> 8–12 bars</div>
+        <div class="chip"><b>Time</b> 4/4</div>
+        <div class="chip"><b>Keys</b> C, F, G, B♭</div>
+        <div class="chip"><b>Leaps</b> 3rd max</div>
+        <div class="chip"><b>Extra</b> No accidentals</div>
+      </div>
+      <ul class="rules">
+        <li>Cap range to the bars on your xylophone.</li>
+        <li>Annotations off. Metronome on.</li>
+        <li>One pass only. New page tomorrow.</li>
+      </ul>
+    </div>
+
+    <div class="dock">
+      <div class="dock-inner">
+        <div class="metro" id="metroBar">
+          <div class="metro-inner">
+            <div class="metro-row">
+              <div class="metro-bpm"><span id="bpmVal">80</span></div>
+              <button type="button" id="bpmMinus">−</button>
+              <button type="button" id="bpmPlus">+</button>
+              <button type="button" class="metro-extra" id="metroTap">Tap</button>
+              <select id="metroBeats" aria-label="Time signature">
+                <option value="2">2/4</option>
+                <option value="3">3/4</option>
+                <option value="4" selected>4/4</option>
+                <option value="5">5/4</option>
+                <option value="6">6/8</option>
+                <option value="7">7/8</option>
+              </select>
+              <select class="metro-extra" id="metroSub" aria-label="Subdivision">
+                <option value="1" selected>Quarter</option>
+                <option value="2">Eighth</option>
+                <option value="3">Triplet</option>
+              </select>
+              <button type="button" id="metroPlay">Play</button>
+            </div>
+          </div>
+        </div>
+        <div id="live">Ready</div>
+        <div class="actions">
+          <button type="button" class="act" id="startBtn">Begin</button>
+          <button type="button" class="act ghost" id="setupBtn">Setup</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Skip parks that block’s minutes in the bank. + takes from the bank, or steals 1 min from your longest other block. Changing the slider rebuilds the auto-plan.</p>
+  </div>
+  <div class="sheet-bg" id="sheetBg"></div>
+  <div class="sheet" id="logSheet">
+    <h2>Practice log</h2>
+    <label for="logNote">Note for this session</label>
+    <textarea id="logNote" maxlength="240" placeholder="What improved, what to fix tomorrow"></textarea>
+    <div class="sheet-actions">
+      <button type="button" class="act" id="saveLog">Save this session</button>
+      <button type="button" class="act ghost" id="closeLog">Close</button>
+      <button type="button" class="act ghost" id="clearLog">Clear log</button>
+    </div>
+    <div id="logList"></div>
+  </div>
+
+<script>
+(function () {
+  function showErr(e) {
+    var box = document.getElementById("err");
+    box.style.display = "block";
+    box.textContent = "Planner error: " + (e && e.message ? e.message : e);
+  }
+
+  function storeGet(key, fallback) {
+    try {
+      var v = window.localStorage.getItem(key);
+      return v == null ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+  function storeSet(key, val) {
+    try { window.localStorage.setItem(key, val); } catch (e) {}
+  }
+
+  var DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  var SRF = {
+    Mon: { time: "4/4", keys: "C, F, G, B♭", leaps: "3rd max", extra: "No accidentals", flavor: "Easy geography in nearby keys", mode: "Free Play", len: "8–12 bars" },
+    Tue: { time: "3/4 or 4/4", keys: "E♭, A♭, D", leaps: "4th max", extra: "Accidentals on", flavor: "Accidentals + a wider key", mode: "Free Play", len: "8–12 bars" },
+    Wed: { time: "2/4 or 6/8", keys: "A, E, D♭", leaps: "5th max", extra: "Staccato/accent if available", flavor: "Meter change + larger leaps", mode: "Free Play", len: "8–12 bars" },
+    Thu: { time: "4/4", keys: "A random major from this week", leaps: "3rd max", extra: "Ties on; easier pitches, harder rhythm", flavor: "Rhythm stress", mode: "Free Play", len: "8–12 bars" },
+    Fri: { time: "Random 3/4, 4/4, 6/8", keys: "Random major + one minor", leaps: "5th–octave", extra: "Accidentals + dynamics", flavor: "Full mix", mode: "Free Play", len: "8–12 bars" },
+    Sat: { time: "As generated", keys: "Mixed", leaps: "As generated", extra: "Challenge mode + listen back", flavor: "Longer page + playback", mode: "Challenge + playback", len: "16 bars" },
+    Sun: { time: "4/4", keys: "C or F", leaps: "3rd", extra: "Easy page only", flavor: "Recovery read", mode: "Free Play", len: "8–12 bars" }
+  };
+  var FOCUS = {
+    Mon: "New key. Quiet targeting.",
+    Tue: "Unused-mallet stillness if 4-mallet is on.",
+    Wed: "Large leaps. Eyes back to the page after one glance.",
+    Thu: "Rhythm first. Do not stop on a wrong pitch.",
+    Fri: "Musical line in repertoire. Mixed SRF.",
+    Sat: "Challenge mode. Listen to playback once.",
+    Sun: "Light. No tempo PRs. Easy SRF only."
+  };
+  var COPY = {
+    body: ["Body reset", "Shoulder rolls, wrist circles, 20 slow air strokes. Loose grip."],
+    twomallet: ["2-mallet engine", "Singles, doubles, short open roll. Center of the bar, even rebound. Hard mallets."],
+    fourmallet: ["4-mallet mini-circuit", "Independents (unused mallet still), verticals at 3rds and 5ths, one interval-change drill."],
+    scales: ["Scales + patterns", "One major + relative minor. Pattern: 1-2-3-1, 1-3-1, or thirds. Then the next key."],
+    srf: ["Sight Reading Factory", "New page. 10-second scan, then one pass with metronome. Do not stop. Do not reuse the page."],
+    rep: ["Repertoire / etude", "Green or Goldenberg, or a current piece. Block → slow → two clean runs."],
+    close: ["Close", "Record 60 seconds of the hardest block. One line: tomorrow’s single target."]
+  };
+  var TICK = {
+    body: "Body", twomallet: "2-mallet", fourmallet: "4-mallet",
+    scales: "Scales", srf: "SRF", rep: "Rep", close: "Close"
+  };
+
+  function allocate(total) {
+    var spec = {
+      body: { min: 3, max: 6, w: 0.5 },
+      twomallet: { min: 6, max: 14, w: 1.15 },
+      fourmallet: { min: 8, max: 12, w: 0.7 },
+      scales: { min: 6, max: 12, w: 0.85 },
+      srf: { min: 8, max: 12, w: 1.2 },
+      rep: { min: 8, max: 28, w: 1.7 },
+      close: { min: 2, max: 5, w: 0.35 }
+    };
+    var include;
+    if (total < 20) include = ["srf", "close"];
+    else if (total < 30) include = ["twomallet", "srf", "rep", "close"];
+    else if (total < 40) include = ["body", "twomallet", "srf", "rep", "close"];
+    else if (total < 50) include = ["body", "twomallet", "scales", "srf", "rep", "close"];
+    else if (total < 60) include = ["body", "twomallet", "fourmallet", "srf", "rep", "close"];
+    else include = ["body", "twomallet", "fourmallet", "scales", "srf", "rep", "close"];
+
+    var shape = total < 20 ? "SRF sprint" : total < 30 ? "Minimum viable" : total < 40 ? "Compact" : total < 50 ? "No 4-mallet" : total < 60 ? "No separate scales" : total < 75 ? "Standard" : "Full + extra repertoire";
+
+    var out = {};
+    var i, id, used = 0;
+    for (i = 0; i < include.length; i++) { out[include[i]] = spec[include[i]].min; used += spec[include[i]].min; }
+    var dropOrder = ["fourmallet", "scales", "body", "close"];
+    while (used > total && dropOrder.length) {
+      id = dropOrder.shift();
+      if (out[id] != null) { used -= out[id]; delete out[id]; }
+    }
+    var remain = total - used;
+    var order = ["rep", "twomallet", "srf", "scales", "fourmallet", "body", "close"];
+    var guard = 0;
+    while (remain > 0 && guard < 200) {
+      guard++;
+      var open = [];
+      for (i = 0; i < order.length; i++) {
+        id = order[i];
+        if (out[id] != null && out[id] < spec[id].max) open.push(id);
+      }
+      if (!open.length) {
+        if (out.rep != null) out.rep += remain;
+        else if (out.twomallet != null) out.twomallet += remain;
+        else if (out.srf != null) out.srf += remain;
+        remain = 0;
+        break;
+      }
+      var wsum = 0;
+      for (i = 0; i < open.length; i++) wsum += spec[open[i]].w;
+      var given = 0;
+      for (i = 0; i < open.length; i++) {
+        id = open[i];
+        var add = (i === open.length - 1) ? (remain - given) : Math.max(0, Math.round(remain * spec[id].w / wsum));
+        var room = spec[id].max - out[id];
+        if (add > room) add = room;
+        out[id] += add;
+        given += add;
+      }
+      if (given === 0) break;
+      remain -= given;
+    }
+    var seq = ["body","twomallet","fourmallet","scales","srf","rep","close"];
+    var blocks = [];
+    var sum = 0;
+    for (i = 0; i < seq.length; i++) {
+      if (out[seq[i]]) { blocks.push({ id: seq[i], mins: out[seq[i]] }); sum += out[seq[i]]; }
+    }
+    return { blocks: blocks, shape: shape, total: sum };
+  }
+
+  var todayIdx = (new Date().getDay() + 6) % 7;
+  var state = {
+    mins: parseInt(storeGet("xyloMins", "70"), 10) || 70,
+    day: storeGet("xyloDay", DAYS[todayIdx]),
+    done: [],
+    bank: 0,
+    blocks: [],
+    activeId: null,
+    target: storeGet("xyloTarget", ""),
+    mode: storeGet("xyloMode", "auto"),
+    custom: [],
+    log: [],
+    presets: [],
+    hideSetup: false,
+    forceSetup: false
+  };
+  try { state.custom = JSON.parse(storeGet("xyloCustom", "[]")); } catch (e) { state.custom = []; }
+  try { state.log = JSON.parse(storeGet("xyloLog", "[]")); } catch (e) { state.log = []; }
+  try { state.presets = JSON.parse(storeGet("xyloPresets", "[]")); } catch (e) { state.presets = []; }
+  try { state.done = JSON.parse(storeGet("xyloDone", "[]")); } catch (e) { state.done = []; }
+  if (DAYS.indexOf(state.day) < 0) state.day = "Mon";
+
+  var countdown = null;
+  var blockLeft = 0;
+  var blockPaused = false;
+  var metroHeld = false;
+  var wakeLock = null;
+  var shapeLabel = "Standard";
+
+  var audioCtx = null;
+  var metro = {
+    bpm: parseInt(storeGet("xyloBpm", "80"), 10) || 80,
+    beats: parseInt(storeGet("xyloBeats", "4"), 10) || 4,
+    sub: parseInt(storeGet("xyloSub", "1"), 10) || 1,
+    running: false,
+    next: 0,
+    count: 0,
+    timer: null,
+    taps: []
+  };
+  if (metro.bpm < 40) metro.bpm = 40;
+  if (metro.bpm > 220) metro.bpm = 220;
+
+  function ensureAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function metroClick(time, accent) {
+    var osc = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = accent ? 1320 : 880;
+    var vol = accent ? 0.22 : 0.12;
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.0008, time + 0.04);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(time);
+    osc.stop(time + 0.05);
+  }
+
+  function metroSched() {
+    if (!metro.running || !audioCtx) return;
+    while (metro.next < audioCtx.currentTime + 0.12) {
+      var cycle = metro.beats * metro.sub;
+      metroClick(metro.next, metro.count % cycle === 0);
+      metro.next += 60 / metro.bpm / metro.sub;
+      metro.count += 1;
+    }
+    metro.timer = setTimeout(metroSched, 25);
+  }
+
+  function metroStop() {
+    metro.running = false;
+    if (metro.timer) { clearTimeout(metro.timer); metro.timer = null; }
+    var btn = document.getElementById("metroPlay");
+    if (btn) { btn.textContent = "Play"; btn.className = ""; }
+  }
+
+  function metroStart() {
+    if (!ensureAudio()) {
+      document.getElementById("live").textContent = "No audio on this browser.";
+      return;
+    }
+    metro.running = true;
+    metro.count = 0;
+    metro.next = audioCtx.currentTime + 0.05;
+    document.getElementById("metroPlay").textContent = "Stop";
+    document.getElementById("metroPlay").className = "on";
+    keepAwake(true);
+    metroSched();
+  }
+
+  function setBpm(n) {
+    metro.bpm = Math.max(40, Math.min(220, Math.round(n)));
+    document.getElementById("bpmVal").textContent = String(metro.bpm);
+    storeSet("xyloBpm", String(metro.bpm));
+  }
+
+  function buzz() {
+    try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) {}
+  }
+  function chimeEnd() {
+    try { if (navigator.vibrate) navigator.vibrate([40, 80, 120]); } catch (e) {}
+    if (!ensureAudio()) return;
+    var t = audioCtx.currentTime;
+    function tone(freq, start, dur, vol) {
+      var osc = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    }
+    tone(523.25, t, 0.2, 0.22);
+    tone(783.99, t + 0.18, 0.42, 0.26);
+  }
+  function fmtWhen(ts) {
+    var d = new Date(ts);
+    var pad = function (n) { return n < 10 ? "0" + n : String(n); };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  function saveSession(note) {
+    var doneNames = state.done.map(function (id) { return COPY[id] ? COPY[id][0] : id; });
+    var planned = state.blocks.filter(function (b) { return !b.skipped; }).map(function (b) { return COPY[b.id][0] + " " + b.mins + "m"; });
+    if (!doneNames.length && !note) return false;
+    state.log.unshift({
+      t: Date.now(),
+      day: state.day,
+      mode: state.mode,
+      playing: playingSum(),
+      done: doneNames,
+      planned: planned,
+      target: state.target || "",
+      note: note || ""
+    });
+    if (state.log.length > 60) state.log = state.log.slice(0, 60);
+    storeSet("xyloLog", JSON.stringify(state.log));
+    return true;
+  }
+
+  function renderLogList() {
+    var el = document.getElementById("logList");
+    if (!state.log.length) {
+      el.innerHTML = "<p class=\"rules\" style=\"padding-left:0\">No sessions yet. Finish blocks, then Save this session.</p>";
+      return;
+    }
+    var html = "";
+    state.log.forEach(function (e, i) {
+      html += "<div class=\"log-item\"><div class=\"when\">" + fmtWhen(e.t) + " · " + e.day + " · " + e.mode + " · " + e.playing + " min</div>";
+      html += "<p>Done: " + (e.done.length ? e.done.join(", ") : "—") + "</p>";
+      if (e.target) html += "<p>Target: " + e.target + "</p>";
+      if (e.note) html += "<p>" + String(e.note).replace(/</g, "&lt;") + "</p>";
+      html += "<button type=\"button\" class=\"act ghost\" data-delog=\"" + i + "\" style=\"margin-top:8px;min-height:40px\">Delete</button></div>";
+    });
+    el.innerHTML = html;
+    var dels = el.querySelectorAll("[data-delog]");
+    for (var i = 0; i < dels.length; i++) {
+      dels[i].onclick = function () {
+        state.log.splice(parseInt(this.getAttribute("data-delog"), 10), 1);
+        storeSet("xyloLog", JSON.stringify(state.log));
+        renderLogList();
+      };
+    }
+  }
+
+  function openLog() {
+    document.getElementById("sheetBg").className = "sheet-bg on";
+    document.getElementById("logSheet").className = "sheet on";
+    renderLogList();
+  }
+  function closeLog() {
+    document.getElementById("sheetBg").className = "sheet-bg";
+    document.getElementById("logSheet").className = "sheet";
+  }
+
+  function keepAwake(on) {
+    if (on === false) return;
+    if (!navigator.wakeLock) return;
+    navigator.wakeLock.request("screen").then(function (lock) {
+      wakeLock = lock;
+      lock.addEventListener("release", function () {
+        wakeLock = null;
+        if (document.visibilityState === "visible") keepAwake(true);
+      });
+    }).catch(function () {});
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") keepAwake(true);
+  });
+
+  var ALL_IDS = ["body","twomallet","fourmallet","scales","srf","rep","close"];
+  var STOCK_PRESETS = [
+    { id: "srf20", name: "20-min SRF", blocks: [
+      { id: "body", mins: 2 }, { id: "srf", mins: 15 }, { id: "close", mins: 3 }
+    ]},
+    { id: "audition", name: "Audition day", blocks: [
+      { id: "body", mins: 5 }, { id: "twomallet", mins: 10 }, { id: "scales", mins: 8 },
+      { id: "srf", mins: 12 }, { id: "rep", mins: 20 }, { id: "close", mins: 5 }
+    ]}
+  ];
+
+  function customFromBlocks(blocks) {
+    var on = {};
+    blocks.forEach(function (b) { on[b.id] = b.mins; });
+    return ALL_IDS.map(function (id) {
+      return { id: id, on: on[id] != null, mins: on[id] != null ? on[id] : 8 };
+    });
+  }
+
+  function loadPreset(preset) {
+    state.custom = customFromBlocks(preset.blocks);
+    state.mode = "custom";
+    storeSet("xyloMode", "custom");
+    storeSet("xyloCustom", JSON.stringify(state.custom));
+    if (!applyCustom()) return;
+    shapeLabel = preset.name;
+    state.hideSetup = true;
+    document.getElementById("live").textContent = preset.name + " ready.";
+    render();
+  }
+
+  function saveCurrentPreset(name) {
+    name = (name || "").trim();
+    if (!name) return false;
+    ensureCustom();
+    var blocks = [];
+    state.custom.forEach(function (c) {
+      if (c.on && c.mins > 0) blocks.push({ id: c.id, mins: c.mins });
+    });
+    if (!blocks.length && state.blocks.length) {
+      state.blocks.forEach(function (b) {
+        if (!b.skipped && b.mins > 0) blocks.push({ id: b.id, mins: b.mins });
+      });
+    }
+    if (!blocks.length) return false;
+    var id = "u" + Date.now();
+    state.presets = state.presets.filter(function (p) { return p.name !== name; });
+    state.presets.unshift({ id: id, name: name, blocks: blocks });
+    if (state.presets.length > 8) state.presets = state.presets.slice(0, 8);
+    storeSet("xyloPresets", JSON.stringify(state.presets));
+    return true;
+  }
+
+  function defaultCustom() {
+    return ALL_IDS.map(function (id) {
+      return { id: id, on: id !== "fourmallet", mins: id === "srf" ? 12 : id === "rep" ? 15 : id === "twomallet" ? 12 : id === "scales" ? 8 : id === "close" ? 3 : 5 };
+    });
+  }
+
+  function ensureCustom() {
+    if (!state.custom || !state.custom.length) state.custom = defaultCustom();
+    var have = {};
+    state.custom.forEach(function (c) { have[c.id] = c; });
+    ALL_IDS.forEach(function (id) {
+      if (!have[id]) state.custom.push({ id: id, on: false, mins: 8 });
+    });
+  }
+
+  function applyCustom() {
+    ensureCustom();
+    var blocks = [];
+    state.custom.forEach(function (c) {
+      if (c.on && c.mins > 0) blocks.push({ id: c.id, mins: c.mins, skipped: false });
+    });
+    if (!blocks.length) return false;
+    state.blocks = blocks;
+    state.bank = 0;
+    state.done = [];
+    state.activeId = null;
+    shapeLabel = "Custom";
+    storeSet("xyloCustom", JSON.stringify(state.custom));
+    storeSet("xyloDone", "[]");
+    return true;
+  }
+
+  function rebuild() {
+    if (state.mode === "custom") {
+      applyCustom();
+      return;
+    }
+    var plan = allocate(state.mins);
+    shapeLabel = plan.shape;
+    state.blocks = plan.blocks.map(function (b) { return { id: b.id, mins: b.mins, skipped: false }; });
+    state.bank = 0;
+    state.done = [];
+    storeSet("xyloDone", "[]");
+  }
+
+  function liveBlocks() {
+    return state.blocks.filter(function (b) { return !b.skipped && b.mins > 0; });
+  }
+
+  function playingSum() {
+    var s = 0;
+    liveBlocks().forEach(function (b) { s += b.mins; });
+    return s;
+  }
+
+  function fmtClock(secs) {
+    var m = Math.floor(Math.max(0, secs) / 60);
+    var s = String(Math.max(0, secs) % 60);
+    if (s.length < 2) s = "0" + s;
+    return m + ":" + s;
+  }
+
+  function markDone(id) {
+    if (!id) return;
+    if (state.done.indexOf(id) < 0) {
+      state.done.push(id);
+      storeSet("xyloDone", JSON.stringify(state.done));
+    }
+  }
+
+  function updatePlayHud() {
+    var nameEl = document.getElementById("playName");
+    var clockEl = document.getElementById("playClock");
+    var cueEl = document.getElementById("playCue");
+    var ticksEl = document.getElementById("playTicks");
+    if (!nameEl) return;
+    var id = state.activeId;
+    if (!id) {
+      nameEl.textContent = "";
+      clockEl.textContent = "0:00";
+      clockEl.className = "play-clock";
+      cueEl.textContent = "";
+    } else {
+      nameEl.textContent = COPY[id][0];
+      clockEl.textContent = fmtClock(blockLeft);
+      clockEl.className = "play-clock" + (blockPaused ? " paused" : "");
+      if (blockLeft <= 0) cueEl.textContent = "Done — tap Begin for the next block";
+      else if (blockPaused) cueEl.textContent = "Paused — tap the clock or Resume";
+      else cueEl.textContent = COPY[id][1];
+    }
+    var html = "";
+    state.blocks.forEach(function (b) {
+      if (b.skipped) return;
+      var done = state.done.indexOf(b.id) >= 0;
+      var on = state.activeId === b.id;
+      html += "<span class=\"tick" + (on ? " on" : "") + (done && !on ? " done" : "") + "\">" + (TICK[b.id] || b.id) + "</span>";
+    });
+    ticksEl.innerHTML = html;
+  }
+
+  function stealSource(exceptId) {
+    var best = null;
+    liveBlocks().forEach(function (b) {
+      if (b.id === exceptId) return;
+      if (b.mins <= 1) return;
+      if (!best || b.mins > best.mins) best = b;
+    });
+    return best;
+  }
+
+  function findBlock(id) {
+    for (var i = 0; i < state.blocks.length; i++) if (state.blocks[i].id === id) return state.blocks[i];
+    return null;
+  }
+
+  function skipBlock(id) {
+    var b = findBlock(id);
+    if (!b || b.skipped) return;
+    state.bank += b.mins;
+    b.mins = 0;
+    b.skipped = true;
+    state.done = state.done.filter(function (x) { return x !== id; });
+    if (state.activeId === id) {
+      state.activeId = null;
+      blockPaused = false;
+      if (typeof stopBlockTimer === "function") stopBlockTimer();
+    }
+    if (!storeGet("xyloSawBank", "")) {
+      storeSet("xyloSawBank", "1");
+      state.flashBank = true;
+    }
+  }
+
+  function giveBank(id) {
+    var b = findBlock(id);
+    if (!b || state.bank <= 0) return;
+    if (b.skipped) { b.skipped = false; }
+    b.mins += state.bank;
+    state.bank = 0;
+  }
+
+  function bump(id, dir) {
+    var b = findBlock(id);
+    if (!b || b.skipped) return;
+    if (dir < 0) {
+      if (b.mins <= 1) return;
+      b.mins -= 1;
+      state.bank += 1;
+    } else {
+      if (state.bank > 0) {
+        state.bank -= 1;
+        b.mins += 1;
+      } else {
+        var src = stealSource(id);
+        if (!src) return;
+        src.mins -= 1;
+        b.mins += 1;
+      }
+    }
+  }
+
+  rebuild();
+
+  function render() {
+    document.body.classList.toggle("playing", !!state.activeId && !state.forceSetup);
+    document.body.classList.toggle("custom", state.mode === "custom");
+    document.body.classList.toggle("hide-setup", !!state.hideSetup && !state.forceSetup);
+    document.getElementById("modeAuto").className = state.mode === "auto" ? "on" : "";
+    document.getElementById("modeCustom").className = state.mode === "custom" ? "on" : "";
+    document.getElementById("mins").value = String(state.mins);
+    document.getElementById("minsVal").textContent = String(state.mins);
+    var tgt = document.getElementById("target");
+    if (tgt && document.activeElement !== tgt) tgt.value = state.target;
+    document.getElementById("shapeName").textContent = shapeLabel + " · " + FOCUS[state.day];
+    document.getElementById("sumMins").textContent = String(playingSum());
+    document.getElementById("bankVal").textContent = String(state.bank);
+    updatePlayHud();
+
+    var bankBox = document.getElementById("bankBox");
+    var give = document.getElementById("giveBtns");
+    if (state.bank > 0) {
+      bankBox.className = state.flashBank ? "bank on flash" : "bank on";
+      state.flashBank = false;
+      document.getElementById("bankAmt").textContent = state.bank + " min parked — give them to another block";
+      give.innerHTML = "";
+      liveBlocks().forEach(function (b) {
+        var gb = document.createElement("button");
+        gb.type = "button";
+        gb.textContent = "Give to " + COPY[b.id][0];
+        gb.setAttribute("data-give", b.id);
+        give.appendChild(gb);
+      });
+      var skipped = state.blocks.filter(function (b) { return b.skipped; });
+      skipped.forEach(function (b) {
+        var gb = document.createElement("button");
+        gb.type = "button";
+        gb.textContent = "Restore " + COPY[b.id][0];
+        gb.setAttribute("data-give", b.id);
+        give.appendChild(gb);
+      });
+    } else {
+      bankBox.className = "bank";
+      give.innerHTML = "";
+    }
+
+    var dayBtns = document.querySelectorAll("#days button");
+    for (var d = 0; d < dayBtns.length; d++) {
+      dayBtns[d].className = dayBtns[d].getAttribute("data-day") === state.day ? "on" : "";
+    }
+
+    var html = "";
+    for (var i = 0; i < state.blocks.length; i++) {
+      var b = state.blocks[i];
+      var checked = state.done.indexOf(b.id) >= 0 ? " checked" : "";
+      var strike = state.done.indexOf(b.id) >= 0 || b.skipped ? " style=\"text-decoration:line-through;opacity:.55\"" : "";
+      var cls = [];
+      if (b.skipped) cls.push("skipped");
+      if (state.activeId === b.id) cls.push("live");
+      var liClass = cls.length ? " class=\"" + cls.join(" ") + "\"" : "";
+      html += "<li data-kind=\"" + b.id + "\"" + liClass + "><div class=\"mins\">" + (b.skipped ? "—" : b.mins) + "<small>min</small></div>";
+      html += "<div class=\"block\"><h3" + strike + ">" + COPY[b.id][0] + "</h3><p>" + COPY[b.id][1] + "</p></div>";
+      html += "<div class=\"tools\">";
+      html += "<button type=\"button\" data-minus=\"" + b.id + "\"" + (b.skipped || b.mins <= 1 ? " disabled" : "") + ">−</button>";
+      html += "<button type=\"button\" data-plus=\"" + b.id + "\"" + (b.skipped ? " disabled" : "") + ">+</button>";
+      html += "<button type=\"button\" data-skip=\"" + b.id + "\"" + (b.skipped ? " disabled" : "") + ">Skip</button>";
+      html += "</div>";
+      html += "<input type=\"checkbox\" data-id=\"" + b.id + "\"" + checked + (b.skipped ? " disabled" : "") + " /></li>";
+    }
+    document.getElementById("plan").innerHTML = html;
+    var liveRow = document.querySelector("ol.plan li.live");
+    if (liveRow && liveRow.scrollIntoView) liveRow.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    var boxes = document.querySelectorAll("#plan input[type=checkbox]");
+    for (var c = 0; c < boxes.length; c++) {
+      boxes[c].onchange = function () {
+        var id = this.getAttribute("data-id");
+        if (this.checked) {
+          if (state.done.indexOf(id) < 0) state.done.push(id);
+        } else {
+          state.done = state.done.filter(function (x) { return x !== id; });
+        }
+        storeSet("xyloDone", JSON.stringify(state.done));
+        render();
+      };
+    }
+    var tools = document.querySelectorAll("#plan [data-minus], #plan [data-plus], #plan [data-skip]");
+    for (var t = 0; t < tools.length; t++) {
+      tools[t].onclick = function () {
+        var sid = this.getAttribute("data-skip");
+        var pid = this.getAttribute("data-plus");
+        var mid = this.getAttribute("data-minus");
+        if (sid) skipBlock(sid);
+        if (pid) bump(pid, 1);
+        if (mid) bump(mid, -1);
+        render();
+      };
+    }
+    var givers = document.querySelectorAll("#giveBtns [data-give]");
+    for (var g = 0; g < givers.length; g++) {
+      givers[g].onclick = function () {
+        giveBank(this.getAttribute("data-give"));
+        render();
+      };
+    }
+
+    var s = SRF[state.day];
+    ensureCustom();
+    var plist = document.getElementById("presetList");
+    var ph = "";
+    STOCK_PRESETS.forEach(function (p) {
+      ph += "<button type=\"button\" class=\"stock\" data-pre=\"" + p.id + "\">" + p.name + "</button>";
+    });
+    state.presets.forEach(function (p) {
+      var safe = String(p.name).replace(/</g, "<");
+      ph += "<button type=\"button\" data-pre=\"" + p.id + "\">" + safe + "</button>";
+      ph += "<button type=\"button\" class=\"del\" data-delpre=\"" + p.id + "\" aria-label=\"Delete\">×</button>";
+    });
+    plist.innerHTML = ph;
+    var pbtns = plist.querySelectorAll("[data-pre]");
+    for (var pi = 0; pi < pbtns.length; pi++) {
+      pbtns[pi].onclick = function () {
+        var id = this.getAttribute("data-pre");
+        var found = null;
+        STOCK_PRESETS.forEach(function (p) { if (p.id === id) found = p; });
+        state.presets.forEach(function (p) { if (p.id === id) found = p; });
+        if (found) loadPreset(found);
+      };
+    }
+    var pdels = plist.querySelectorAll("[data-delpre]");
+    for (var pd = 0; pd < pdels.length; pd++) {
+      pdels[pd].onclick = function () {
+        var id = this.getAttribute("data-delpre");
+        state.presets = state.presets.filter(function (p) { return p.id !== id; });
+        storeSet("xyloPresets", JSON.stringify(state.presets));
+        render();
+      };
+    }
+
+    var cl = document.getElementById("customList");
+    var crow = "";
+    var ctot = 0;
+    state.custom.forEach(function (c) {
+      if (c.on) ctot += c.mins;
+      crow += "<div class=\"custom-row" + (c.on ? "" : " off") + "\">";
+      crow += "<input type=\"checkbox\" data-con=\"" + c.id + "\"" + (c.on ? " checked" : "") + " />";
+      crow += "<div>" + COPY[c.id][0] + "</div>";
+      crow += "<button type=\"button\" data-cminus=\"" + c.id + "\">−</button>";
+      crow += "<div class=\"custom-min\">" + c.mins + "</div>";
+      crow += "<button type=\"button\" data-cplus=\"" + c.id + "\">+</button></div>";
+    });
+    cl.innerHTML = crow;
+    document.getElementById("customTotal").textContent = String(ctot);
+    var cons = cl.querySelectorAll("[data-con]");
+    for (var ci = 0; ci < cons.length; ci++) {
+      cons[ci].onchange = function () {
+        var id = this.getAttribute("data-con");
+        state.custom.forEach(function (c) { if (c.id === id) c.on = this.checked; }.bind(this));
+        storeSet("xyloCustom", JSON.stringify(state.custom));
+        render();
+      };
+    }
+    var cm = cl.querySelectorAll("[data-cminus], [data-cplus]");
+    for (var cj = 0; cj < cm.length; cj++) {
+      cm[cj].onclick = function () {
+        var plus = this.getAttribute("data-cplus");
+        var minus = this.getAttribute("data-cminus");
+        var id = plus || minus;
+        state.custom.forEach(function (c) {
+          if (c.id !== id) return;
+          if (plus) c.mins = Math.min(40, c.mins + 1);
+          else c.mins = Math.max(1, c.mins - 1);
+          c.on = true;
+        });
+        storeSet("xyloCustom", JSON.stringify(state.custom));
+        render();
+      };
+    }
+
+    var s = SRF[state.day];
+    document.getElementById("srfCard").innerHTML =
+      "<h2>Today’s SRF setup — " + state.day + "</h2>" +
+      "<p class=\"rules\" style=\"margin-top:0\">" + s.flavor + "</p>" +
+      "<div class=\"chips\">" +
+      "<div class=\"chip\"><b>Instrument</b> Mallets / Xylophone</div>" +
+      "<div class=\"chip\"><b>Mode</b> " + s.mode + "</div>" +
+      "<div class=\"chip\"><b>Length</b> " + s.len + "</div>" +
+      "<div class=\"chip\"><b>Time</b> " + s.time + "</div>" +
+      "<div class=\"chip\"><b>Keys</b> " + s.keys + "</div>" +
+      "<div class=\"chip\"><b>Leaps</b> " + s.leaps + "</div>" +
+      "<div class=\"chip\"><b>Extra</b> " + s.extra + "</div>" +
+      "</div>" +
+      "<ul class=\"rules\"><li>Cap range to the bars on your xylophone. Regenerate if a note is missing.</li>" +
+      "<li>Annotations off. Metronome on. Tempo = fastest you can finish without stopping.</li>" +
+      "<li>Scan 10 seconds, play once, close it. Raise level after three clean days.</li></ul>";
+  }
+
+  try {
+    document.getElementById("modeAuto").addEventListener("click", function () {
+      state.mode = "auto";
+      state.hideSetup = false;
+      storeSet("xyloMode", "auto");
+      rebuild();
+      render();
+    });
+    document.getElementById("modeCustom").addEventListener("click", function () {
+      state.mode = "custom";
+      state.hideSetup = false;
+      storeSet("xyloMode", "custom");
+      ensureCustom();
+      render();
+    });
+    document.getElementById("applyCustom").addEventListener("click", function () {
+      if (!applyCustom()) {
+        document.getElementById("live").textContent = "Turn on at least one block.";
+        return;
+      }
+      state.mode = "custom";
+      state.hideSetup = true;
+      storeSet("xyloMode", "custom");
+      document.getElementById("live").textContent = "Custom session ready.";
+      render();
+      var planEl = document.getElementById("plan");
+      if (planEl && planEl.scrollIntoView) planEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.getElementById("setupBtn").addEventListener("click", function () {
+      if (state.activeId && countdown && !blockPaused) pauseBlock();
+      state.forceSetup = true;
+      state.hideSetup = false;
+      document.getElementById("live").textContent = state.activeId
+        ? "Paused — Resume to go back to the clock"
+        : "Ready";
+      render();
+    });
+    document.getElementById("savePreset").addEventListener("click", function () {
+      var nameEl = document.getElementById("presetName");
+      if (!saveCurrentPreset(nameEl.value)) {
+        document.getElementById("live").textContent = "Name it, and include at least one block.";
+        return;
+      }
+      nameEl.value = "";
+      document.getElementById("live").textContent = "Preset saved.";
+      render();
+    });
+    document.getElementById("bpmVal").textContent = String(metro.bpm);
+    document.getElementById("metroBeats").value = String(metro.beats);
+    document.getElementById("metroSub").value = String(metro.sub);
+    document.getElementById("bpmMinus").addEventListener("click", function () { setBpm(metro.bpm - 2); });
+    document.getElementById("bpmPlus").addEventListener("click", function () { setBpm(metro.bpm + 2); });
+    document.getElementById("metroBeats").addEventListener("change", function () {
+      metro.beats = parseInt(this.value, 10) || 4;
+      metro.count = 0;
+      storeSet("xyloBeats", String(metro.beats));
+    });
+    document.getElementById("metroSub").addEventListener("change", function () {
+      metro.sub = parseInt(this.value, 10) || 1;
+      metro.count = 0;
+      storeSet("xyloSub", String(metro.sub));
+    });
+    document.getElementById("metroPlay").addEventListener("click", function () {
+      if (metro.running) metroStop();
+      else metroStart();
+    });
+    document.getElementById("metroTap").addEventListener("click", function () {
+      var now = Date.now();
+      metro.taps = metro.taps.filter(function (t) { return now - t < 3000; });
+      metro.taps.push(now);
+      if (metro.taps.length >= 2) {
+        var span = metro.taps[metro.taps.length - 1] - metro.taps[0];
+        var avg = span / (metro.taps.length - 1);
+        setBpm(60000 / avg);
+      }
+    });
+    document.getElementById("openLog").addEventListener("click", openLog);
+    document.getElementById("closeLog").addEventListener("click", closeLog);
+    document.getElementById("sheetBg").addEventListener("click", closeLog);
+    document.getElementById("saveLog").addEventListener("click", function () {
+      var note = document.getElementById("logNote").value.trim();
+      if (!saveSession(note)) {
+        document.getElementById("live").textContent = "Check off a block or write a note first.";
+        return;
+      }
+      document.getElementById("logNote").value = "";
+      renderLogList();
+      document.getElementById("live").textContent = "Session saved.";
+    });
+    document.getElementById("clearLog").addEventListener("click", function () {
+      if (!state.log.length) return;
+      state.log = [];
+      storeSet("xyloLog", "[]");
+      renderLogList();
+    });
+    document.getElementById("target").addEventListener("input", function () {
+      state.target = this.value;
+      storeSet("xyloTarget", state.target);
+    });
+    document.getElementById("mins").addEventListener("input", function () {
+      state.mins = parseInt(this.value, 10);
+      storeSet("xyloMins", String(state.mins));
+      rebuild();
+      render();
+    });
+    var dayBtns = document.querySelectorAll("#days button");
+    for (var i = 0; i < dayBtns.length; i++) {
+      dayBtns[i].addEventListener("click", function () {
+        state.day = this.getAttribute("data-day");
+        storeSet("xyloDay", state.day);
+        render();
+      });
+    }
+    function setStartLabel(text) {
+      document.getElementById("startBtn").textContent = text;
+    }
+    function clockLabel(id, secs) {
+      return COPY[id][0] + " — " + fmtClock(secs);
+    }
+    function stopBlockTimer() {
+      if (countdown) { clearInterval(countdown); countdown = null; }
+    }
+    function pauseBlock() {
+      if (!state.activeId || blockPaused || !countdown) return;
+      blockPaused = true;
+      stopBlockTimer();
+      keepAwake(true);
+      if (metro.running) {
+        metroHeld = true;
+        metroStop();
+      }
+      document.getElementById("live").textContent = "Paused · " + clockLabel(state.activeId, blockLeft);
+      setStartLabel("Resume");
+      updatePlayHud();
+    }
+    function runBlockTick() {
+      var id = state.activeId;
+      document.getElementById("live").textContent = clockLabel(id, blockLeft);
+      updatePlayHud();
+      if (blockLeft <= 0) {
+        stopBlockTimer();
+        blockPaused = false;
+        metroHeld = false;
+        if (metro.running) metroStop();
+        markDone(id);
+        document.getElementById("live").textContent = COPY[id][0] + " done.";
+        setStartLabel("Begin");
+        chimeEnd();
+        updatePlayHud();
+        render();
+        return;
+      }
+      blockLeft -= 1;
+    }
+    function resumeBlock() {
+      if (!state.activeId || blockLeft <= 0) return;
+      state.forceSetup = false;
+      blockPaused = false;
+      keepAwake(true);
+      setStartLabel("Pause");
+      document.getElementById("live").textContent = clockLabel(state.activeId, blockLeft);
+      stopBlockTimer();
+      countdown = setInterval(runBlockTick, 1000);
+      if (metroHeld) {
+        metroHeld = false;
+        metroStart();
+      }
+      render();
+      updatePlayHud();
+    }
+    function beginBlock(next) {
+      if (state.activeId && state.activeId !== next.id) markDone(state.activeId);
+      state.forceSetup = false;
+      state.activeId = next.id;
+      blockLeft = next.mins * 60;
+      blockPaused = false;
+      metroHeld = false;
+      keepAwake(true);
+      ensureAudio();
+      buzz();
+      render();
+      setStartLabel("Pause");
+      stopBlockTimer();
+      runBlockTick();
+      countdown = setInterval(runBlockTick, 1000);
+    }
+
+    document.getElementById("resetPlanBtn").addEventListener("click", function () {
+      rebuild();
+      state.activeId = null;
+      state.forceSetup = false;
+      blockPaused = false;
+      metroHeld = false;
+      if (metro.running) metroStop();
+      stopBlockTimer();
+      setStartLabel("Begin");
+      document.getElementById("live").textContent = "Ready";
+      render();
+    });
+    document.addEventListener("pointerdown", function once() {
+      keepAwake(true);
+      document.removeEventListener("pointerdown", once);
+    });
+    document.getElementById("playClock").addEventListener("click", function () {
+      document.getElementById("startBtn").click();
+    });
+    document.getElementById("startBtn").addEventListener("click", function () {
+      if (state.activeId && countdown && !blockPaused) {
+        pauseBlock();
+        return;
+      }
+      if (state.activeId && blockPaused && blockLeft > 0 && state.done.indexOf(state.activeId) < 0) {
+        resumeBlock();
+        return;
+      }
+      var planBlocks = liveBlocks();
+      var next = null;
+      for (var i = 0; i < planBlocks.length; i++) {
+        if (state.done.indexOf(planBlocks[i].id) < 0) { next = planBlocks[i]; break; }
+      }
+      if (!next) {
+        state.activeId = null;
+        blockPaused = false;
+        if (metro.running) metroStop();
+        stopBlockTimer();
+        setStartLabel("Begin");
+        document.getElementById("live").textContent = "Session complete.";
+        saveSession("");
+        render();
+        return;
+      }
+      beginBlock(next);
+    });
+    document.getElementById("resetBtn").addEventListener("click", function () {
+      state.done = [];
+      state.activeId = null;
+      state.forceSetup = false;
+      blockPaused = false;
+      metroHeld = false;
+      if (metro.running) metroStop();
+      stopBlockTimer();
+      setStartLabel("Begin");
+      document.getElementById("live").textContent = "Ready";
+      storeSet("xyloDone", "[]");
+      render();
+    });
+    render();
+  } catch (e) {
+    showErr(e);
+  }
+})();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
