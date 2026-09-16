@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0d10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Xylo Plan</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0d10;
+      --ink: #f4f1ea;
+      --muted: #8b909c;
+      --gold: #e8b86d;
+      --gold-2: #f3d7a4;
+      --teal: #7ee0d6;
+      --card: rgba(255,255,255,0.04);
+      --line: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    button, input { touch-action: manipulation; font-family: inherit; }
+    body {
+      font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
+      background:
+        radial-gradient(900px 420px at 0% -10%, rgba(232,184,109,.16), transparent 50%),
+        radial-gradient(700px 380px at 100% 0%, rgba(126,224,214,.08), transparent 46%),
+        var(--bg);
+      color: var(--ink);
+    }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 220px; }
+    h1 {
+      font-family: Syne, Outfit, sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
+      letter-spacing: -0.04em;
+      margin: 0 0 16px;
+      line-height: .95;
+    }
+    .presets, .save-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .presets button, .save-row button, .tools button, .give button, .sheet-actions button {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      border-radius: 999px;
+      min-height: 40px;
+      padding: 0 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .presets .del { min-width: 36px; padding: 0 8px; color: var(--muted); }
+    .save-row input {
+      flex: 1;
+      min-width: 140px;
+      font-size: 16px;
+      color: var(--ink);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .meta { color: var(--muted); font-size: .86rem; margin: 4px 0 12px; }
+    .meta b {
+      color: var(--ink);
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 600;
+    }
+    ol.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    ol.plan li {
+      display: grid;
+      grid-template-columns: 28px 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 12px 12px 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    ol.plan li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--gold);
+    }
+    ol.plan li[data-kind="twomallet"]::before { background: #7ee0d6; }
+    ol.plan li[data-kind="fourmallet"]::before { background: #8aa4ff; }
+    ol.plan li[data-kind="scales"]::before { background: #9ad27a; }
+    ol.plan li[data-kind="srf"]::before { background: var(--gold); }
+    ol.plan li[data-kind="rep"]::before { background: #e89b6d; }
+    ol.plan li.live {
+      border-color: rgba(232,184,109,.55);
+      background: rgba(232,184,109,.08);
+    }
+    ol.plan li.off, ol.plan li.skipped, ol.plan li.done { opacity: .38; }
+    ol.plan li.skipped .name, ol.plan li.done .name { text-decoration: line-through; }
+    .name { font-weight: 650; letter-spacing: -.01em; }
+    .mins {
+      color: var(--gold-2);
+      font-family: Syne, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      min-width: 2.2rem;
+      text-align: right;
+    }
+    .tools { display: flex; gap: 4px; }
+    .tools button {
+      min-width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 12px;
+    }
+    .tools button:disabled { opacity: .3; }
+    input[type="checkbox"] {
+      appearance: none;
+      width: 26px; height: 26px;
+      border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: 6px;
+      margin: 0;
+      cursor: pointer;
+      background: transparent;
+    }
+    input[type="checkbox"]:checked {
+      background: var(--teal);
+      border-color: var(--teal);
+      box-shadow: inset 0 0 0 3px #0c0d10;
+    }
+    #playHud { display: none; text-align: center; padding: 28px 8px 12px; }
+    body.playing #playHud { display: block; }
+    body.playing .setup, body.playing .meta, body.playing ol.plan { display: none; }
+    body.playing h1 { font-size: 1.25rem; margin-bottom: 0; }
+    .play-name {
+      font-family: Syne, sans-serif;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      margin: 0 0 8px;
+    }
+    .play-clock {
+      font-family: Syne, sans-serif;
+      font-size: clamp(4.6rem, 22vw, 7.2rem);
+      font-weight: 800;
+      letter-spacing: -.06em;
+      line-height: .9;
+      color: var(--gold-2);
+      margin: 0 0 18px;
+      display: block;
+      width: 100%;
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+    }
+    .play-clock.paused { color: var(--muted); }
+    .play-ticks { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .tick {
+      font-family: inherit;
+      font-size: .72rem;
+      font-weight: 650;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      background: transparent;
+      border-radius: 999px;
+      padding: 8px 10px;
+      min-height: 36px;
+      cursor: pointer;
+    }
+    .tick.on { color: #111; background: var(--gold); border-color: var(--gold); }
+    .tick.done { opacity: .35; text-decoration: line-through; }
+    .tick small {
+      display: block;
+      font-size: .62rem;
+      letter-spacing: .08em;
+      font-weight: 600;
+    }
+    .tick.on small { color: #111; }
+    .dock {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(12,13,16,.96);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+      z-index: 25;
+    }
+    .dock-inner { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .metro-inner {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 8px 10px;
+    }
+    .metro-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .metro-bpm {
+      font-family: Syne, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      min-width: 3rem;
+    }
+    .metro-row button, .metro-row select {
+      font-size: 14px;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color: var(--ink);
+      padding: 0 10px;
+    }
+    #metroPlay.on { background: var(--teal); color: #111; border-color: var(--teal); }
+    #live {
+      margin: 0;
+      color: var(--teal);
+      font-family: Syne, sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: -.03em;
+    }
+    .actions { display: flex; gap: 8px; }
+    .act {
+      flex: 1;
+      background: var(--ink);
+      color: #111;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 52px;
+    }
+    .ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    #setupBtn, #doneBtn { display: none; }
+    body.playing #setupBtn,
+    body.playing #doneBtn,
+    body.has-block #doneBtn { display: flex; }
+    .sheet-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 30;
+    }
+    .sheet-bg.on { display: block; }
+    .sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      max-height: 80vh;
+      overflow: auto;
+      background: #14161c;
+      border-radius: 22px 22px 0 0;
+      border: 1px solid var(--line);
+      padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
+      z-index: 31;
+      transform: translateY(110%);
+      transition: transform .22s ease;
+    }
+    .sheet.on { transform: translateY(0); }
+    .sheet h2 { font-family: Syne, sans-serif; margin: 0 0 12px; }
+    .sheet textarea {
+      width: 100%;
+      min-height: 72px;
+      font-size: 16px;
+      color: var(--ink);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin: 0 0 12px;
+    }
+    .log-item { border-top: 1px solid var(--line); padding: 12px 0; }
+    .log-item .when { color: var(--gold-2); font-weight: 650; font-size: .9rem; }
+    .log-item p { margin: 4px 0 0; color: var(--muted); font-size: .88rem; }
+    #err {
+      display: none;
+      background: #3a1c1c;
+      color: #f3d2d2;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Xylo Plan</h1>
+    <div id="err"></div>
+    <div class="setup">
+      <div class="presets" id="presetList"></div>
+      <div class="save-row">
+        <input id="presetName" type="text" maxlength="32" placeholder="Preset name" />
+        <button type="button" id="savePreset">Save</button>
+        <button type="button" id="openLog">Log</button>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+    </div>
+    <div class="meta"><b id="sumMins">0</b> min</div>
+    <div id="playHud">
+      <div class="play-name" id="playName"></div>
+      <button type="button" class="play-clock" id="playClock">0:00</button>
+      <div class="play-ticks" id="playTicks"></div>
+    </div>
+    <ol class="plan" id="plan"></ol>
+    <div class="dock">
+      <div class="dock-inner">
+        <div class="metro-inner">
+          <div class="metro-row">
+            <div class="metro-bpm"><span id="bpmVal">80</span></div>
+            <button type="button" id="bpmMinus">−</button>
+            <button type="button" id="bpmPlus">+</button>
+            <button type="button" id="metroTap">Tap</button>
+            <select id="metroBeats" aria-label="Beats">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+            </select>
+            <select id="metroSub" aria-label="Subdivision">
+              <option value="1" selected>Quarter</option>
+              <option value="2">Eighth</option>
+              <option value="3">Triplet</option>
+            </select>
+            <button type="button" id="metroPlay">Play</button>
+          </div>
+        </div>
+        <div id="live">Ready</div>
+        <div class="actions">
+          <button type="button" class="act" id="startBtn">Begin</button>
+          <button type="button" class="act ghost" id="doneBtn">Done</button>
+          <button type="button" class="act ghost" id="setupBtn">List</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sheet-bg" id="sheetBg"></div>
+  <div class="sheet" id="logSheet">
+    <h2>Log</h2>
+    <textarea id="logNote" maxlength="240"></textarea>
+    <div class="sheet-actions">
+      <button type="button" class="act" id="saveLog">Save</button>
+      <button type="button" class="act ghost" id="closeLog">Close</button>
+      <button type="button" class="act ghost" id="clearLog">Clear</button>
+    </div>
+    <div id="logList"></div>
+  </div>
+<script>
+(function () {
+  function showErr(e) {
+    var box = document.getElementById("err");
+    box.style.display = "block";
+    box.textContent = String(e && e.message ? e.message : e);
+  }
+  function storeGet(key, fallback) {
+    try {
+      var v = window.localStorage.getItem(key);
+      return v == null ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+  function storeSet(key, val) {
+    try { window.localStorage.setItem(key, val); } catch (e) {}
+  }
+
+  var BLOCKS = [
+    { id: "twomallet", name: "2-mallet" },
+    { id: "fourmallet", name: "4-mallet" },
+    { id: "scales", name: "Scales" },
+    { id: "srf", name: "SRF" },
+    { id: "rep", name: "Rep" }
+  ];
+  var DEFAULTS = { twomallet: 12, fourmallet: 8, scales: 8, srf: 12, rep: 15 };
+
+  function nameOf(id) {
+    for (var i = 0; i < BLOCKS.length; i++) if (BLOCKS[i].id === id) return BLOCKS[i].name;
+    return id;
+  }
+
+  var state = {
+    items: [],
+    done: [],
+    activeId: null,
+    log: [],
+    presets: [],
+    forceSetup: false
+  };
+  try { state.items = JSON.parse(storeGet("xyloCustom", "[]")); } catch (e) { state.items = []; }
+  try { state.log = JSON.parse(storeGet("xyloLog", "[]")); } catch (e) { state.log = []; }
+  try { state.presets = JSON.parse(storeGet("xyloPresets", "[]")); } catch (e) { state.presets = []; }
+  try { state.done = JSON.parse(storeGet("xyloDone", "[]")); } catch (e) { state.done = []; }
+
+  function ensureItems() {
+    var have = {};
+    (state.items || []).forEach(function (c) { if (c && c.id) have[c.id] = c; });
+    state.items = BLOCKS.map(function (b) {
+      var prev = have[b.id];
+      return {
+        id: b.id,
+        on: prev && typeof prev.on === "boolean" ? prev.on : true,
+        mins: prev && prev.mins > 0 ? prev.mins : DEFAULTS[b.id],
+        skipped: !!(prev && prev.skipped)
+      };
+    });
+  }
+  ensureItems();
+  function todayStamp() {
+    var d = new Date();
+    var pad = function (n) { return n < 10 ? "0" + n : String(n); };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function rollDayIfNeeded() {
+    var t = todayStamp();
+    if (storeGet("xyloSessionDate", "") === t) return false;
+    state.done = [];
+    state.items.forEach(function (b) { b.skipped = false; });
+    persistItems();
+    storeSet("xyloDone", "[]");
+    storeSet("xyloSessionDate", t);
+    return true;
+  }
+
+  var countdown = null;
+  var blockLeft = 0;
+  var blockPaused = false;
+  var blockEndsAt = 0;
+  var blockRemainMs = 0;
+  var runBlockTick = null;
+  var endCurrentBlock = null;
+  var beginBlock = null;
+  var metroHeld = false;
+  var wakeLock = null;
+  var TICK_MS = 200;
+  var bpmMap = {};
+  try { bpmMap = JSON.parse(storeGet("xyloBpmMap", "{}")) || {}; } catch (e) { bpmMap = {}; }
+
+  function nowMs() { return Date.now(); }
+  function remainingMs() {
+    if (blockPaused) return Math.max(0, blockRemainMs);
+    if (blockEndsAt) return Math.max(0, blockEndsAt - nowMs());
+    return Math.max(0, blockLeft * 1000);
+  }
+  function syncBlockLeft() {
+    var ms = remainingMs();
+    blockLeft = ms <= 0 ? 0 : Math.ceil(ms / 1000);
+    return ms;
+  }
+  function stopBlockTimer() {
+    if (countdown) { clearInterval(countdown); countdown = null; }
+  }
+  function startBlockTimer() {
+    stopBlockTimer();
+    countdown = setInterval(function () {
+      if (typeof runBlockTick === "function") runBlockTick();
+    }, TICK_MS);
+  }
+  function clearBlockClock() {
+    stopBlockTimer();
+    blockEndsAt = 0;
+    blockRemainMs = 0;
+    blockLeft = 0;
+    blockPaused = false;
+  }
+
+  var audioCtx = null;
+  var metro = {
+    bpm: parseInt(storeGet("xyloBpm", "80"), 10) || 80,
+    beats: parseInt(storeGet("xyloBeats", "4"), 10) || 4,
+    sub: parseInt(storeGet("xyloSub", "1"), 10) || 1,
+    running: false,
+    next: 0,
+    count: 0,
+    timer: null,
+    taps: []
+  };
+  if (metro.bpm < 40) metro.bpm = 40;
+  if (metro.bpm > 220) metro.bpm = 220;
+
+  function ensureAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+  function metroClick(time, accent) {
+    var osc = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = accent ? 1320 : 880;
+    var vol = accent ? 0.22 : 0.12;
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.0008, time + 0.04);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(time);
+    osc.stop(time + 0.05);
+  }
+  function metroSched() {
+    if (!metro.running || !audioCtx) return;
+    while (metro.next < audioCtx.currentTime + 0.12) {
+      metroClick(metro.next, metro.count % (metro.beats * metro.sub) === 0);
+      metro.next += 60 / metro.bpm / metro.sub;
+      metro.count += 1;
+    }
+    metro.timer = setTimeout(metroSched, 25);
+  }
+  function metroStop() {
+    metro.running = false;
+    if (metro.timer) { clearTimeout(metro.timer); metro.timer = null; }
+    var btn = document.getElementById("metroPlay");
+    if (btn) { btn.textContent = "Play"; btn.className = ""; }
+    syncWake();
+  }
+  function metroStart() {
+    if (!ensureAudio()) return;
+    metro.running = true;
+    metro.count = 0;
+    metro.next = audioCtx.currentTime + 0.05;
+    document.getElementById("metroPlay").textContent = "Stop";
+    document.getElementById("metroPlay").className = "on";
+    syncWake();
+    metroSched();
+  }
+  function setBpm(n) {
+    metro.bpm = Math.max(40, Math.min(220, Math.round(n)));
+    document.getElementById("bpmVal").textContent = String(metro.bpm);
+    storeSet("xyloBpm", String(metro.bpm));
+  }
+
+  function buzz() {
+    try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) {}
+  }
+  function chimeEnd() {
+    try { if (navigator.vibrate) navigator.vibrate([40, 80, 120]); } catch (e) {}
+    if (!ensureAudio()) return;
+    var t = audioCtx.currentTime;
+    function tone(freq, start, dur, vol) {
+      var osc = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    }
+    tone(523.25, t, 0.2, 0.22);
+    tone(783.99, t + 0.18, 0.42, 0.26);
+  }
+
+  function wantAwake() {
+    return metro.running || (!!state.activeId && !blockPaused && !!countdown);
+  }
+  function keepAwake(on) {
+    if (!navigator.wakeLock) return;
+    if (!on) {
+      if (wakeLock) {
+        var lock = wakeLock;
+        wakeLock = null;
+        lock.release().catch(function () {});
+      }
+      return;
+    }
+    navigator.wakeLock.request("screen").then(function (lock) {
+      if (!wantAwake()) {
+        lock.release().catch(function () {});
+        return;
+      }
+      wakeLock = lock;
+      lock.addEventListener("release", function () {
+        if (wakeLock === lock) wakeLock = null;
+        if (document.visibilityState === "visible" && wantAwake()) keepAwake(true);
+      });
+    }).catch(function () {});
+  }
+  function syncWake() {
+    keepAwake(wantAwake());
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") {
+      keepAwake(false);
+      return;
+    }
+    if (state.activeId == null) {
+      if (rollDayIfNeeded()) render();
+    }
+    syncWake();
+    if (state.activeId && !blockPaused && countdown && typeof runBlockTick === "function") runBlockTick();
+  });
+
+  function persistItems() {
+    storeSet("xyloCustom", JSON.stringify(state.items));
+  }
+  rollDayIfNeeded();
+  state.done = state.done.filter(function (id) {
+    return state.items.some(function (b) { return b.id === id; });
+  });
+  function saveBlockBpm(id) {
+    if (!id) return;
+    bpmMap[id] = metro.bpm;
+    storeSet("xyloBpmMap", JSON.stringify(bpmMap));
+  }
+  function applyBlockBpm(id) {
+    if (id && bpmMap[id]) setBpm(bpmMap[id]);
+  }
+  function liveItems() {
+    return state.items.filter(function (b) { return b.on && !b.skipped && b.mins > 0; });
+  }
+  function playingSum() {
+    var s = 0;
+    liveItems().forEach(function (b) { s += b.mins; });
+    return s;
+  }
+  function findItem(id) {
+    for (var i = 0; i < state.items.length; i++) if (state.items[i].id === id) return state.items[i];
+    return null;
+  }
+  function fmtClock(secs) {
+    var m = Math.floor(Math.max(0, secs) / 60);
+    var s = String(Math.max(0, secs) % 60);
+    if (s.length < 2) s = "0" + s;
+    return m + ":" + s;
+  }
+  function markDone(id) {
+    if (!id) return;
+    if (state.done.indexOf(id) < 0) {
+      state.done.push(id);
+      storeSet("xyloDone", JSON.stringify(state.done));
+    }
+  }
+
+  function nextUndone(exceptId) {
+    var plan = liveItems();
+    for (var i = 0; i < plan.length; i++) {
+      if (plan[i].id === exceptId) continue;
+      if (state.done.indexOf(plan[i].id) < 0) return plan[i];
+    }
+    return null;
+  }
+  function skipBlock(id) {
+    var b = findItem(id);
+    if (!b || b.skipped || !b.on) return;
+    b.skipped = true;
+    state.done = state.done.filter(function (x) { return x !== id; });
+    storeSet("xyloDone", JSON.stringify(state.done));
+    persistItems();
+    if (state.activeId === id) {
+      saveBlockBpm(id);
+      if (typeof endCurrentBlock === "function") endCurrentBlock(id);
+    }
+  }
+  function bump(id, dir) {
+    var b = findItem(id);
+    if (!b) return;
+    var next = b.mins + dir;
+    if (next < 1 || next > 90) return;
+    b.mins = next;
+    b.on = true;
+    b.skipped = false;
+    if (state.activeId === id) {
+      if (blockPaused) blockRemainMs = Math.max(1000, blockRemainMs + dir * 60000);
+      else if (blockEndsAt) blockEndsAt += dir * 60000;
+      syncBlockLeft();
+    }
+    persistItems();
+  }
+
+  function updatePlayHud() {
+    var nameEl = document.getElementById("playName");
+    var clockEl = document.getElementById("playClock");
+    var ticksEl = document.getElementById("playTicks");
+    var id = state.activeId;
+    if (!id) {
+      nameEl.textContent = "";
+      clockEl.textContent = "0:00";
+      clockEl.className = "play-clock";
+    } else {
+      nameEl.textContent = nameOf(id);
+      clockEl.textContent = fmtClock(blockLeft);
+      clockEl.className = "play-clock" + (blockPaused ? " paused" : "");
+    }
+    var html = "";
+    liveItems().forEach(function (b) {
+      var done = state.done.indexOf(b.id) >= 0;
+      var on = state.activeId === b.id;
+      html += "<button type=\"button\" class=\"tick" + (on ? " on" : "") + (done && !on ? " done" : "") + "\" data-jump=\"" + b.id + "\">";
+      html += nameOf(b.id) + "<small>" + b.mins + "m</small></button>";
+    });
+    ticksEl.innerHTML = html;
+    var jumps = ticksEl.querySelectorAll("[data-jump]");
+    for (var j = 0; j < jumps.length; j++) {
+      jumps[j].onclick = function () {
+        var id = this.getAttribute("data-jump");
+        if (!id || id === state.activeId || typeof beginBlock !== "function") return;
+        var b = findItem(id);
+        if (!b || !b.on || b.skipped) return;
+        saveBlockBpm(state.activeId);
+        state.done = state.done.filter(function (x) { return x !== id; });
+        storeSet("xyloDone", JSON.stringify(state.done));
+        beginBlock(b, { quiet: true });
+      };
+    }
+  }
+
+  function fmtWhen(ts) {
+    var d = new Date(ts);
+    var pad = function (n) { return n < 10 ? "0" + n : String(n); };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function saveSession(note) {
+    var doneNames = state.done.map(nameOf);
+    var planned = liveItems().map(function (b) { return nameOf(b.id) + " " + b.mins + "m"; });
+    if (!doneNames.length && !note) return false;
+    state.log.unshift({ t: Date.now(), playing: playingSum(), done: doneNames, planned: planned, note: note || "" });
+    if (state.log.length > 60) state.log = state.log.slice(0, 60);
+    storeSet("xyloLog", JSON.stringify(state.log));
+    return true;
+  }
+  function renderLogList() {
+    var el = document.getElementById("logList");
+    if (!state.log.length) { el.innerHTML = ""; return; }
+    var html = "";
+    state.log.forEach(function (e, i) {
+      html += "<div class=\"log-item\"><div class=\"when\">" + fmtWhen(e.t) + " · " + e.playing + " min</div>";
+      html += "<p>" + (e.done.length ? e.done.join(", ") : "—") + "</p>";
+      if (e.note) html += "<p>" + String(e.note).replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</p>";
+      html += "<button type=\"button\" data-delog=\"" + i + "\">Delete</button></div>";
+    });
+    el.innerHTML = html;
+    var dels = el.querySelectorAll("[data-delog]");
+    for (var i = 0; i < dels.length; i++) {
+      dels[i].onclick = function () {
+        state.log.splice(parseInt(this.getAttribute("data-delog"), 10), 1);
+        storeSet("xyloLog", JSON.stringify(state.log));
+        renderLogList();
+      };
+    }
+  }
+
+  function loadPreset(preset) {
+    var on = {};
+    (preset.blocks || []).forEach(function (b) { on[b.id] = b.mins; });
+    state.items = BLOCKS.map(function (b) {
+      return { id: b.id, on: on[b.id] != null, mins: on[b.id] != null ? on[b.id] : DEFAULTS[b.id], skipped: false };
+    });
+    state.done = [];
+    state.activeId = null;
+    clearBlockClock();
+    persistItems();
+    storeSet("xyloDone", "[]");
+    document.getElementById("live").textContent = "Ready";
+    render();
+  }
+
+  function render() {
+    document.body.classList.toggle("playing", !!state.activeId && !state.forceSetup);
+    document.body.classList.toggle("has-block", !!state.activeId);
+    document.getElementById("sumMins").textContent = String(playingSum());
+    updatePlayHud();
+
+    var ph = "";
+    state.presets.forEach(function (p) {
+      var safe = String(p.name).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      ph += "<button type=\"button\" data-pre=\"" + p.id + "\">" + safe + "</button>";
+      ph += "<button type=\"button\" class=\"del\" data-delpre=\"" + p.id + "\">×</button>";
+    });
+    document.getElementById("presetList").innerHTML = ph;
+
+    var html = "";
+    state.items.forEach(function (b) {
+      var cls = [];
+      if (!b.on) cls.push("off");
+      if (b.skipped) cls.push("skipped");
+      if (state.done.indexOf(b.id) >= 0) cls.push("done");
+      if (state.activeId === b.id) cls.push("live");
+      html += "<li data-kind=\"" + b.id + "\"" + (cls.length ? " class=\"" + cls.join(" ") + "\"" : "") + ">";
+      html += "<input type=\"checkbox\" data-on=\"" + b.id + "\"" + (b.on && !b.skipped ? " checked" : "") + " />";
+      html += "<div class=\"name\">" + nameOf(b.id) + "</div>";
+      html += "<div class=\"mins\">" + (b.skipped || !b.on ? "—" : b.mins) + "</div>";
+      html += "<div class=\"tools\">";
+      html += "<button type=\"button\" data-minus=\"" + b.id + "\"" + (!b.on || b.skipped || b.mins <= 1 ? " disabled" : "") + ">−</button>";
+      html += "<button type=\"button\" data-plus=\"" + b.id + "\">+</button>";
+      html += "<button type=\"button\" data-skip=\"" + b.id + "\"" + (!b.on || b.skipped ? " disabled" : "") + ">Skip</button>";
+      html += "</div></li>";
+    });
+    document.getElementById("plan").innerHTML = html;
+
+    var ons = document.querySelectorAll("#plan [data-on]");
+    for (var i = 0; i < ons.length; i++) {
+      ons[i].onchange = function () {
+        var b = findItem(this.getAttribute("data-on"));
+        if (!b) return;
+        b.on = this.checked;
+        if (b.on) b.skipped = false;
+        persistItems();
+        render();
+      };
+    }
+    var tools = document.querySelectorAll("#plan [data-minus], #plan [data-plus], #plan [data-skip]");
+    for (var t = 0; t < tools.length; t++) {
+      tools[t].onclick = function () {
+        if (this.getAttribute("data-skip")) skipBlock(this.getAttribute("data-skip"));
+        if (this.getAttribute("data-plus")) bump(this.getAttribute("data-plus"), 1);
+        if (this.getAttribute("data-minus")) bump(this.getAttribute("data-minus"), -1);
+        render();
+      };
+    }
+    var pbtns = document.querySelectorAll("#presetList [data-pre]");
+    for (var pi = 0; pi < pbtns.length; pi++) {
+      pbtns[pi].onclick = function () {
+        var id = this.getAttribute("data-pre");
+        state.presets.forEach(function (p) { if (p.id === id) loadPreset(p); });
+      };
+    }
+    var pdels = document.querySelectorAll("#presetList [data-delpre]");
+    for (var pd = 0; pd < pdels.length; pd++) {
+      pdels[pd].onclick = function () {
+        var id = this.getAttribute("data-delpre");
+        state.presets = state.presets.filter(function (p) { return p.id !== id; });
+        storeSet("xyloPresets", JSON.stringify(state.presets));
+        render();
+      };
+    }
+  }
+
+  try {
+    document.getElementById("bpmVal").textContent = String(metro.bpm);
+    document.getElementById("metroBeats").value = String(metro.beats);
+    document.getElementById("metroSub").value = String(metro.sub);
+    document.getElementById("bpmMinus").onclick = function () { setBpm(metro.bpm - 2); };
+    document.getElementById("bpmPlus").onclick = function () { setBpm(metro.bpm + 2); };
+    document.getElementById("metroBeats").onchange = function () {
+      metro.beats = parseInt(this.value, 10) || 4;
+      metro.count = 0;
+      storeSet("xyloBeats", String(metro.beats));
+    };
+    document.getElementById("metroSub").onchange = function () {
+      metro.sub = parseInt(this.value, 10) || 1;
+      metro.count = 0;
+      storeSet("xyloSub", String(metro.sub));
+    };
+    document.getElementById("metroPlay").onclick = function () {
+      if (metro.running) metroStop(); else metroStart();
+    };
+    document.getElementById("metroTap").onclick = function () {
+      var now = Date.now();
+      metro.taps = metro.taps.filter(function (t) { return now - t < 3000; });
+      metro.taps.push(now);
+      if (metro.taps.length >= 2) setBpm(60000 / (metro.taps[metro.taps.length - 1] - metro.taps[0]) * (metro.taps.length - 1));
+    };
+
+    document.getElementById("savePreset").onclick = function () {
+      var name = document.getElementById("presetName").value.trim();
+      if (!name) return;
+      var blocks = liveItems().map(function (b) { return { id: b.id, mins: b.mins }; });
+      if (!blocks.length) return;
+      state.presets = state.presets.filter(function (p) { return p.name !== name; });
+      state.presets.unshift({ id: "u" + Date.now(), name: name, blocks: blocks });
+      if (state.presets.length > 8) state.presets = state.presets.slice(0, 8);
+      storeSet("xyloPresets", JSON.stringify(state.presets));
+      document.getElementById("presetName").value = "";
+      render();
+    };
+
+    function openLog() {
+      document.getElementById("sheetBg").className = "sheet-bg on";
+      document.getElementById("logSheet").className = "sheet on";
+      renderLogList();
+    }
+    function closeLog() {
+      document.getElementById("sheetBg").className = "sheet-bg";
+      document.getElementById("logSheet").className = "sheet";
+    }
+    document.getElementById("openLog").onclick = openLog;
+    document.getElementById("closeLog").onclick = closeLog;
+    document.getElementById("sheetBg").onclick = closeLog;
+    document.getElementById("saveLog").onclick = function () {
+      saveSession(document.getElementById("logNote").value.trim());
+      document.getElementById("logNote").value = "";
+      renderLogList();
+    };
+    document.getElementById("clearLog").onclick = function () {
+      state.log = [];
+      storeSet("xyloLog", "[]");
+      renderLogList();
+    };
+
+    function setStartLabel(text) {
+      document.getElementById("startBtn").textContent = text;
+    }
+    function clockLabel(id, secs) {
+      return nameOf(id) + " — " + fmtClock(secs);
+    }
+    function pauseBlock() {
+      if (!state.activeId || blockPaused || !countdown) return;
+      blockRemainMs = remainingMs();
+      blockPaused = true;
+      blockEndsAt = 0;
+      stopBlockTimer();
+      syncBlockLeft();
+      if (metro.running) { metroHeld = true; metroStop(); }
+      document.getElementById("live").textContent = clockLabel(state.activeId, blockLeft);
+      setStartLabel("Resume");
+      syncWake();
+      updatePlayHud();
+    }
+    function armBlock(next) {
+      state.forceSetup = false;
+      state.activeId = next.id;
+      blockRemainMs = Math.max(0, next.mins * 60 * 1000);
+      blockEndsAt = 0;
+      blockPaused = true;
+      metroHeld = false;
+      stopBlockTimer();
+      syncBlockLeft();
+      applyBlockBpm(next.id);
+      setStartLabel("Begin");
+      document.getElementById("live").textContent = nameOf(next.id);
+      syncWake();
+      render();
+    }
+    endCurrentBlock = function (justId) {
+      metroHeld = false;
+      if (metro.running) metroStop();
+      var next = nextUndone(justId);
+      if (!next) {
+        state.activeId = null;
+        state.forceSetup = false;
+        clearBlockClock();
+        setStartLabel("Begin");
+        document.getElementById("live").textContent = "Done";
+        saveSession("");
+        syncWake();
+        render();
+        return;
+      }
+      armBlock(next);
+    };
+    runBlockTick = function () {
+      var id = state.activeId;
+      if (!id) { stopBlockTimer(); syncWake(); return; }
+      var ms = syncBlockLeft();
+      document.getElementById("live").textContent = clockLabel(id, blockLeft);
+      updatePlayHud();
+      if (ms <= 0) {
+        saveBlockBpm(id);
+        markDone(id);
+        chimeEnd();
+        endCurrentBlock(id);
+      }
+    };
+    function resumeBlock() {
+      if (!state.activeId || remainingMs() <= 0) return;
+      state.forceSetup = false;
+      blockPaused = false;
+      blockEndsAt = nowMs() + blockRemainMs;
+      setStartLabel("Pause");
+      syncBlockLeft();
+      startBlockTimer();
+      if (metroHeld) { metroHeld = false; metroStart(); }
+      syncWake();
+      render();
+    }
+    beginBlock = function (next, opts) {
+      opts = opts || {};
+      if (state.activeId && state.activeId !== next.id) saveBlockBpm(state.activeId);
+      state.forceSetup = false;
+      state.activeId = next.id;
+      blockRemainMs = Math.max(0, next.mins * 60 * 1000);
+      blockEndsAt = nowMs() + blockRemainMs;
+      blockPaused = false;
+      metroHeld = false;
+      applyBlockBpm(next.id);
+      ensureAudio();
+      if (!opts.quiet) buzz();
+      setStartLabel("Pause");
+      startBlockTimer();
+      syncWake();
+      runBlockTick();
+      render();
+    };
+
+    document.getElementById("setupBtn").onclick = function () {
+      if (state.activeId && countdown && !blockPaused) pauseBlock();
+      state.forceSetup = true;
+      syncWake();
+      render();
+    };
+    document.getElementById("doneBtn").onclick = function () {
+      if (!state.activeId) return;
+      var id = state.activeId;
+      saveBlockBpm(id);
+      markDone(id);
+      endCurrentBlock(id);
+    };
+    document.getElementById("playClock").onclick = function () {
+      document.getElementById("startBtn").click();
+    };
+    document.getElementById("startBtn").onclick = function () {
+      if (state.activeId && countdown && !blockPaused) { pauseBlock(); return; }
+      if (state.activeId && blockPaused && remainingMs() > 0 && state.done.indexOf(state.activeId) < 0) {
+        resumeBlock();
+        return;
+      }
+      var plan = liveItems();
+      var next = null;
+      for (var i = 0; i < plan.length; i++) {
+        if (state.done.indexOf(plan[i].id) < 0) { next = plan[i]; break; }
+      }
+      if (!next) {
+        state.activeId = null;
+        if (metro.running) metroStop();
+        clearBlockClock();
+        setStartLabel("Begin");
+        document.getElementById("live").textContent = "Done";
+        saveSession("");
+        syncWake();
+        render();
+        return;
+      }
+      beginBlock(next);
+    };
+    document.getElementById("resetBtn").onclick = function () {
+      state.done = [];
+      state.activeId = null;
+      state.forceSetup = false;
+      metroHeld = false;
+      if (metro.running) metroStop();
+      state.items.forEach(function (b) { b.skipped = false; });
+      persistItems();
+      clearBlockClock();
+      setStartLabel("Begin");
+      document.getElementById("live").textContent = "Ready";
+      storeSet("xyloDone", "[]");
+      storeSet("xyloSessionDate", todayStamp());
+      syncWake();
+      render();
+    };
+    document.addEventListener("pointerdown", function once() {
+      syncWake();
+      document.removeEventListener("pointerdown", once);
+    });
+    render();
+  } catch (e) {
+    showErr(e);
+  }
+})();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
